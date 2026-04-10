@@ -1,0 +1,4 @@
+# file: /home/walw/Playground/llmsystem/llmsys_hw1/minitorch/testing.py
+# hypothesis_version: 6.148.7
+
+[1.2, 5.5, '1', '2', 'A', '_', 'red']
