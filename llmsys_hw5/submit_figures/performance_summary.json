@@ -1,0 +1,40 @@
+{
+  "config": {
+    "epochs": 3,
+    "warmup_epochs_dropped": 1,
+    "pipeline_batch_size": 96,
+    "pipeline_n_chunk": 2
+  },
+  "data_parallel": {
+    "single_gpu": {
+      "time_mean": 14.22760272026062,
+      "time_std": 0.0015802383422851562,
+      "tok_mean": 226461.8323933174,
+      "tok_std": 666.4599751018395
+    },
+    "two_gpu": {
+      "time_mean": 7.787969291210175,
+      "time_std": 0.0008659958839416504,
+      "tok_mean": 189245.3806284361,
+      "tok_std": 70.01597482491343
+    },
+    "speedup_time_reduction_x": 1.8268693915265541,
+    "speedup_throughput_x": 0.8356612618931565
+  },
+  "pipeline_parallel": {
+    "model_parallel": {
+      "time_mean": 13.606514811515808,
+      "time_std": 0.00886070728302002,
+      "tok_mean": 47036.311669366536,
+      "tok_std": 30.630546848220547
+    },
+    "pipeline_parallel": {
+      "time_mean": 12.634071946144104,
+      "time_std": 0.026549935340881348,
+      "tok_mean": 50656.89265134836,
+      "tok_std": 106.45318707985643
+    },
+    "speedup_time_reduction_x": 1.076969869216907,
+    "speedup_throughput_x": 1.0769741685409362
+  }
+}

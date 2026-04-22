@@ -26,7 +26,9 @@ def _clock_cycles(num_batches: int, num_partitions: int) -> Iterable[List[Tuple[
     This function should yield schedules for each clock cycle.
     '''
     # BEGIN_HW5_2_1
-    raise NotImplementedError("Schedule Generation Not Implemented Yet")
+    for k in range(num_batches + num_partitions - 1):
+        schedule = [(k - i, i) for i in range(k + 1) if k - i < num_batches and i < num_partitions]
+        yield schedule
     # END_HW5_2_1
 
 class Pipe(nn.Module):
@@ -53,7 +55,11 @@ class Pipe(nn.Module):
         Please note that you should put the result on the last device. Putting the result on the same device as input x will lead to pipeline parallel training failing.
         '''
         # BEGIN_HW5_2_2
-        raise NotImplementedError("Pipeline Parallel Not Implemented Yet")
+        batches = list(x.split(self.split_size))
+        for schedule in _clock_cycles(len(batches), len(self.partitions)):
+            self.compute(batches, schedule)
+        output = torch.cat(batches, dim=0).to(self.devices[-1])
+        return output
         # END_HW5_2_2
 
     def compute(self, batches, schedule: List[Tuple[int, int]]) -> None:
@@ -69,6 +75,20 @@ class Pipe(nn.Module):
         devices = self.devices
 
         # BEGIN_HW5_2_2
-        raise NotImplementedError("Pipeline Parallel Not Implemented Yet")
+        for batch_idx, partition_idx in schedule:
+            partition = partitions[partition_idx]
+            device = devices[partition_idx]
+            microbatch = batches[batch_idx].to(device)
+            task = Task(lambda partition=partition, microbatch=microbatch: partition(microbatch))
+            self.in_queues[partition_idx].put(task)
+
+        for batch_idx, partition_idx in schedule:
+            ok, payload = self.out_queues[partition_idx].get()
+            if not ok:
+                _, exc_value, exc_traceback = payload
+                raise exc_value.with_traceback(exc_traceback)
+
+            _, result = payload
+            batches[batch_idx] = result
         # END_HW5_2_2
 

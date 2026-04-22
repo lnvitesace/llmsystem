@@ -32,7 +32,10 @@ def average_gradients(model):
     3. Average the gradients over the world_size (total number of devices)
     '''
     # BEGIN_HW5_1_2
-    raise NotImplementedError("Data Parallel Not Implemented Yet")
+    world_size = dist.get_world_size()
+    for param in model.parameters():
+        dist.all_reduce(param.grad.data, op=dist.ReduceOp.SUM)
+        param.grad.data /= world_size
     # END_HW5_1_2
 
 def setup(rank, world_size, backend):
@@ -42,7 +45,9 @@ def setup(rank, world_size, backend):
     2. Use `torch.distributed` to init the process group
     '''
     # BEGIN_HW5_1_2
-    raise NotImplementedError("Data Parallel Not Implemented Yet")
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "11868"
+    dist.init_process_group(rank=rank, world_size=world_size, backend=backend)
     # END_HW5_1_2
 
 
@@ -167,6 +172,8 @@ def run_dp(
         # To compute the throughput, you need to sum up the tokens_per_sec across all the devices based on epochs
         print(f'Rank {rank} training time: avg:{np.mean(total_time)}, std:{np.std(total_time)}, \
         tokens_per_second: avg: {np.mean(total_tokens_per_sec)}, std:{np.std(total_tokens_per_sec)}')
+    if dist.is_initialized():
+        dist.destroy_process_group()
 
 
 if __name__ == '__main__':
@@ -197,8 +204,28 @@ if __name__ == '__main__':
     2. You should start the processes to work and terminate resources properly
     '''
     # BEGIN_HW5_1_3
-    world_size = None  # TODO: Define the number of GPUs
-    backend = None  # TODO: Define your backend for communication, we suggest using 'nccl'
+    world_size = args.world_size  # TODO: Define the number of GPUs
+    backend = "nccl"  # TODO: Define your backend for communication, we suggest using 'nccl'
 
-    raise NotImplementedError("Data Parallel Not Implemented Yet")
+    for rank in range(world_size):
+        p = Process(
+                target=run_dp,
+                args=(rank, world_size, backend),
+                kwargs={
+                    "dataset_name": args.dataset,
+                    "model_max_length": args.model_max_length,
+                    "n_epochs": args.n_epochs,
+                    "batch_size": args.batch_size,
+                    "learning_rate": args.learning_rate,
+                    "benchmark_only": args.benchmark_only,
+                    "max_batches": args.max_batches,
+                    "pytest_mode": PYTEST
+                }
+                )
+        #p = Process(target=run_dp, args=(rank, world_size, backend))
+        processes.append(p)
+        p.start()
+
+    for p in processes:
+        p.join()
     # END_HW5_1_3

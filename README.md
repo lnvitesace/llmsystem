@@ -4,9 +4,8 @@ This repository contains my solutions and notes for CMU **11-868: Large Language
 
 ## Links
 
-- Course: [llmsystem2025spring](https://llmsystem.github.io/llmsystem2025spring/)
-- Homework guide: [llmsystemhomework](https://llmsystem.github.io/llmsystemhomework/)
-- Notes: [blog.mindorigin.top/AI/llmsys](https://blog.mindorigin.top/AI/llmsys)
+- Course: [llmsystem2026spring](https://llmsystem.github.io/llmsystem2026spring/)
+- Homework: [llmsystemhomework](https://llmsystem.github.io/llmsystemhomework/)
 
 ## Repository Layout
 
